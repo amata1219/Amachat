@@ -1,4 +1,4 @@
-package amata1219.chat.plugin.bungee.channel;
+package amata1219.amachat;
 
 public class Channel {
 

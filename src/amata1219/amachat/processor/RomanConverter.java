@@ -1,4 +1,4 @@
-package amata1219.chat.plugin.bungee.fucntion;
+package amata1219.amachat.processor;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,11 +12,13 @@ import java.net.URLEncoder;
 
 import com.google.common.collect.ImmutableMap;
 
+import amata1219.amachat.bungee.LineReader;
+
 public class RomanConverter implements TextProcessor {
 
 	//http://www.google.com/transliterate?langpair=ja-Hira|ja&text=
 
-	private final ImmutableMap<String, String[]> table = new ImmutableMapBuilder()
+	private final ImmutableMap<String, String[]> table = new HiraganaTableBuilder()
 			.put("", "あ","い","う","え","お")
 			.put("k", "か","き","く","け","こ")
 			.put("s", "さ","し","す","せ","そ")
@@ -77,10 +79,10 @@ public class RomanConverter implements TextProcessor {
 
 	@Override
 	public String process(String text){
-		return japanize(convertFromRoman(text));
+		return japaaaaanize(convert(text));
 	}
 
-	public String convertFromRoman(String text){
+	public String convert(String text){
 		String line = "";
 		StringBuilder builder = new StringBuilder();
 
@@ -161,7 +163,7 @@ public class RomanConverter implements TextProcessor {
 		return builder.append(line).toString();
 	}
 
-	public String japanize(String text){
+	public String japaaaaanize(String text){
 		if(text.isEmpty())
 			return "";
 
@@ -174,7 +176,6 @@ public class RomanConverter implements TextProcessor {
 			connection.setRequestMethod("GET");
 			connection.setInstanceFollowRedirects(false);
 			connection.connect();
-			//[["あたらしいあさ",["新しい朝","あたらしい朝","あたらしいあさ","アタラシイアサ","ｱﾀﾗｼｲｱｻ"]]]
 			for(String line : LineReader.readAll(new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8")))){
 				StringBuilder connector = new StringBuilder();
 				int tmp = 0, index = 0;
@@ -199,7 +200,7 @@ public class RomanConverter implements TextProcessor {
 						if(start == -1 || end == -1)
 							break;
 
-						connector.append(line.substring(start, end + 1));
+						connector.append(line.charAt(start));
 						int indexOfBracket = line.indexOf("[", end);
 						if(indexOfBracket == -1)
 							break;
@@ -234,6 +235,21 @@ public class RomanConverter implements TextProcessor {
 
 	private String getHiragana(String consonant, int index){
 		return table.containsKey(consonant) ? table.get(consonant)[index] : consonant + table.get("")[index];
+	}
+
+	public class HiraganaTableBuilder {
+
+		public final ImmutableMap.Builder<String, String[]> builder = new ImmutableMap.Builder<String, String[]>();
+
+		public HiraganaTableBuilder(){
+
+		}
+
+		public HiraganaTableBuilder put(String key, String v1, String v2, String v3, String v4, String v5){
+			builder.put(key, new String[]{v1, v2, v3, v4, v5});
+			return this;
+		}
+
 	}
 
 }

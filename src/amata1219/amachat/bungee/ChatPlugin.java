@@ -1,4 +1,4 @@
-package amata1219.chat.plugin.bungee;
+package amata1219.amachat.bungee;
 
 import net.md_5.bungee.api.plugin.Plugin;
 

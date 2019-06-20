@@ -1,4 +1,4 @@
-package amata1219.chat.plugin.bungee.fucntion;
+package amata1219.amachat.processor;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,6 +8,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 
 import org.apache.commons.lang.Validate;
+
+import amata1219.amachat.bungee.LineReader;
 
 public class Translator implements TextProcessor {
 

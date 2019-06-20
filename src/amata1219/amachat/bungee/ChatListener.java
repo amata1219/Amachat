@@ -1,10 +1,10 @@
-package amata1219.chat.plugin.bungee;
+package amata1219.amachat.bungee;
 
 import org.bukkit.event.Listener;
 
-import amata1219.chat.plugin.bungee.fucntion.HolderPlacer;
-import amata1219.chat.plugin.bungee.fucntion.RomanConverter;
-import amata1219.chat.plugin.bungee.fucntion.Translator;
+import amata1219.amachat.processor.HolderPlacer;
+import amata1219.amachat.processor.RomanConverter;
+import amata1219.amachat.processor.Translator;
 import net.md_5.bungee.api.connection.Connection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;

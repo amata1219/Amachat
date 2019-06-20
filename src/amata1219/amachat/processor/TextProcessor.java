@@ -1,4 +1,4 @@
-package amata1219.chat.plugin.bungee.fucntion;
+package amata1219.amachat.processor;
 
 public interface TextProcessor {
 

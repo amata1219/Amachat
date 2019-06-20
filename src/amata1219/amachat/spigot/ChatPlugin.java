@@ -1,4 +1,4 @@
-package amata1219.chat.plugin.spigot;
+package amata1219.amachat.spigot;
 
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
