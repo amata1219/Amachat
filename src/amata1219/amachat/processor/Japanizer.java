@@ -1,25 +1,43 @@
 package amata1219.amachat.processor;
 
-import java.util.Comparator;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableSortedMap;
+import com.google.common.io.CharStreams;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 
 public final class Japanizer implements TextProcessor {
 
-	private static final String[] ROMAN_LETTER_ARRAY;
+	private static final Pattern[] ROMAN_LETTER_ARRAY;
 	private static final String[] HIRAGANA_ARRAY;
+
+	private static final String CHARACTER_ENCODING = "UTF-8";
+
+	public static void main(String[] args){
+		System.out.println(new Japanizer().process("korekaragakkouniikoutoomounodesukedo"));
+	}
 
 	static{
 		ImmutableSortedMap<String, String> correspondenceTable = CorrespondenceTableBuilder.build(
-			"a", "あ",
-			"i", "い",
+			//"a", "あ",
+			//"i", "い",
 			"yi", "い",
-			"u", "う",
+			//"u", "う",
 			"wu", "う",
 			"whu", "う",
-			"e", "え",
-			"o", "お",
+			//"e", "え",
+			//"o", "お",
 			"wha", "うぁ",
 			"whi", "うぃ",
 			"wi", "うぃ",
@@ -290,17 +308,98 @@ public final class Japanizer implements TextProcessor {
 			"n'", "ん",
 			"xn", "ん",
 			"lwa", "ゎ",
-			"xwa", "ゎ"
+			"xwa", "ゎ",
+			",", "、",
+			".", "。",
+			"-", "ー",
+			"!", "！",
+			"?", "？",
+			"[", "「",
+			"]", "」"
 		);
 
-		ROMAN_LETTER_ARRAY = correspondenceTable.keySet().toArray(new String[]{});
-		HIRAGANA_ARRAY = correspondenceTable.values().toArray(new String[]{});
+		/*Pattern[] patterns = correspondenceTable.keySet()
+				.stream()
+				.map(romanLetter -> Pattern.compile(romanLetter, Pattern.LITERAL))
+				.toArray(Pattern[]::new);
+
+		patterns = Arrays.copyOf(patterns, patterns.length + 4);
+		char[] vowels = "aiueo".toCharArray();
+		for(int i = 0; i < 5; i++)
+			patterns[patterns.length - 5 + i] = Pattern.compile(String.valueOf(vowels[i]), Pattern.LITERAL);*/
+
+		ROMAN_LETTER_ARRAY = correspondenceTable.keySet()
+				.stream()
+				.map(romanLetter -> Pattern.compile(romanLetter, Pattern.LITERAL))
+				.toArray(Pattern[]::new);
+
+		/*ROMAN_LETTER_ARRAY = patterns;
+
+		String[] strings = correspondenceTable.values()
+				.stream()
+				.map(Matcher::quoteReplacement)
+				.toArray(String[]::new);
+
+		strings = Arrays.copyOf(strings, strings.length + 4);
+		vowels = "あいうえお".toCharArray();
+		for(int i = 0; i < 5; i++)
+			strings[strings.length - 5 + i] = Matcher.quoteReplacement(String.valueOf(vowels[i]));
+
+		HIRAGANA_ARRAY = strings;*/
+
+		HIRAGANA_ARRAY = correspondenceTable.values()
+				.stream()
+				.map(Matcher::quoteReplacement)
+				.toArray(String[]::new);
 	}
 
 	@Override
 	public String process(String text) {
+		if(text.isEmpty())
+			return "";
+
 		for(int i = 0; i < ROMAN_LETTER_ARRAY.length; i++)
-			text = text.replace(ROMAN_LETTER_ARRAY[i], HIRAGANA_ARRAY[i]);
+			text = ROMAN_LETTER_ARRAY[i].matcher(text).replaceAll(HIRAGANA_ARRAY[i]);
+
+		text = text.replace("a", "あ").replace("i", "い").replace("u", "う").replace("e", "え").replace("o", "お");
+
+		HttpURLConnection connection = null;
+		BufferedReader reader = null;
+		try{
+			URL url = new URL("https://www.google.com/transliterate?langpair=ja-Hira|ja&text=" + URLEncoder.encode(text, CHARACTER_ENCODING));
+
+			connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("GET");
+			connection.setInstanceFollowRedirects(false);
+			connection.connect();
+
+			reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), CHARACTER_ENCODING));
+
+			String json = CharStreams.toString(reader);
+
+			StringBuilder builder = new StringBuilder();
+			new Gson()
+				.fromJson(json, JsonArray.class)
+				.forEach(element -> builder.append(element.getAsJsonArray().get(1).getAsJsonArray().get(0).getAsString()));
+
+			return builder.toString();
+		}catch(MalformedURLException e){
+			e.printStackTrace();
+		}catch(ProtocolException e){
+			e.printStackTrace();
+		}catch(IOException e){
+			e.printStackTrace();
+		}finally{
+			if(connection != null)
+				connection.disconnect();
+
+			if(reader != null)
+				try {
+					reader.close();
+				} catch (IOException e) {
+
+				}
+		}
 
 		return text;
 	}
@@ -311,23 +410,25 @@ public final class Japanizer implements TextProcessor {
 			if(pairs.length % 2 != 0)
 				throw new IllegalArgumentException("Arguments length must be even");
 
-			ImmutableSortedMap.Builder<String, String> builder = new ImmutableSortedMap.Builder<String, String>(Comparator.reverseOrder());
+			ImmutableSortedMap.Builder<String, String> builder = ImmutableSortedMap.reverseOrder();
 
-			int pairSize = pairs.length / 2;
-			for(int i = 0; i < pairSize / 2; i++)
-				builder.put(pairs[i], pairs[i + pairSize]);
+			for(int i = 0; i < pairs.length; i += 2)
+				builder.put(pairs[i], pairs[i + 1]);
 
 			for(Entry<String, String> pair : builder.build().entrySet()){
 				String romanLetter = pair.getKey();
 				String hiragana = pair.getValue();
 				char firstLetter = romanLetter.charAt(0);
 
-				if("aiueon".indexOf(firstLetter) > -1)
+				if("aiueon,.-!?[]".indexOf(firstLetter) <= -1)
 					builder.put(firstLetter + romanLetter, "っ" + hiragana);
 
-				if("bmp".indexOf(firstLetter) > -1)
+				if("bp".indexOf(firstLetter) > -1)
 					builder.put("m" + romanLetter, "ん" + hiragana);
 			}
+
+			for(Entry<String, String> pair : builder.build().entrySet())
+				System.out.println(pair.getKey() + " : " + pair.getValue());
 
 			return builder.build();
 		}
