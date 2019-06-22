@@ -2,7 +2,7 @@ package amata1219.amachat.bungee;
 
 import net.md_5.bungee.api.plugin.Plugin;
 
-public class ChatPlugin extends Plugin {
+public class Amachat extends Plugin {
 
 	/*
 	 * @…Amachat(未完成)から機能そのままコピペ
@@ -32,7 +32,7 @@ public class ChatPlugin extends Plugin {
 	 *
 	 */
 
-	private static ChatPlugin plugin;
+	private static Amachat plugin;
 
 	@Override
 	public void onEnable(){
@@ -44,7 +44,7 @@ public class ChatPlugin extends Plugin {
 
 	}
 
-	public static ChatPlugin getPlugin(){
+	public static Amachat getPlugin(){
 		return plugin;
 	}
 

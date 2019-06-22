@@ -3,9 +3,9 @@ package amata1219.amachat.spigot;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class ChatPlugin extends JavaPlugin {
+public class Amachat extends JavaPlugin {
 
-	private static ChatPlugin plugin;
+	private static Amachat plugin;
 
 	@Override
 	public void onEnable(){
@@ -14,10 +14,10 @@ public class ChatPlugin extends JavaPlugin {
 
 	@Override
 	public void onDisable(){
-		HandlerList.unregisterAll((ChatPlugin) this);
+		HandlerList.unregisterAll((Amachat) this);
 	}
 
-	public static ChatPlugin getPlugin(){
+	public static Amachat getPlugin(){
 		return plugin;
 	}
 
