@@ -1,5 +1,6 @@
 package amata1219.amachat.bungee;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -12,13 +13,24 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 public class User {
 
 	private final Amachat amachat = Amachat.getPlugin();
+	private final UserManager userManager = Amachat.getUserManager();
 
 	public final UUID uuid;
+	public final String name;
 	public final Set<User> hidden;
+	public boolean useJapanize;
 
-	public User(UUID uuid){
+	public User(ProxiedPlayer player){
+		uuid = player.getUniqueId();
+		name = player.getName();
+		hidden = new HashSet<>();
+	}
+
+	public User(UUID uuid, String name, Collection<UUID> hidden, boolean useJapanize){
 		this.uuid = uuid;
-		this.hidden = new HashSet<>();
+		this.name = name;
+		this.hidden = new HashSet<>(userManager.wrap(hidden));
+		this.useJapanize = useJapanize;
 	}
 
 	public Optional<ProxiedPlayer> getPlayer(){

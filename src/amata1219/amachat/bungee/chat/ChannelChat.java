@@ -57,6 +57,12 @@ public class ChannelChat implements Chat {
 
 	@Override
 	public void join(User user) {
+		if(!canJoin(user))
+			return;
+
+		members.bypass((set) -> set.add(user));
+
+		broadcast();
 	}
 
 	@Override
@@ -69,22 +75,22 @@ public class ChannelChat implements Chat {
 
 	@Override
 	public void mute(User user) {
+		muted.bypass((set) -> set.add(user));
 	}
 
 	@Override
 	public void unmute(User user) {
+		muted.bypass((set) -> set.remove(user));
 	}
 
 	@Override
 	public void ban(User user) {
+		banned.bypass((set) -> set.add(user));
 	}
 
 	@Override
 	public void unban(User user) {
-	}
-
-	@Override
-	public void chat(User user, String message) {
+		banned.bypass((set) -> set.remove(user));
 	}
 
 }
