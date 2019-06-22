@@ -4,4 +4,8 @@ public interface TextProcessor {
 
 	String process(String text);
 
+	default boolean canProcess(String text){
+		return true;
+	}
+
 }

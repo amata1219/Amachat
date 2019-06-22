@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Optional;
 
 import org.apache.commons.lang.Validate;
 
@@ -23,22 +24,18 @@ public class Translator implements TextProcessor {
 
 	@Override
 	public String process(String text) {
-		if(text.isEmpty())
-			return "";
+		if(text.isEmpty() || !canProcess(text))
+			return text;
 
-		String[] parts = text.split(":", 1);
-		if(parts.length != 2)
-			return "";
-
-		LanguageCode code = LanguageCode.toLanguageCode(parts[0]);
-		if(code == null)
-			return "";
+		Optional<LanguageCode> code = LanguageCode.toLanguageCode(text.split(":", 1)[0]);
+		if(!code.isPresent())
+			return text;
 
 		StringBuilder builder = new StringBuilder();
 		HttpURLConnection connection = null;
 		BufferedReader reader = null;
 		try {
-			connection = (HttpURLConnection) new URL(url.replace("$2", code.toString()).replace("$1", URLEncoder.encode(text, "UTF-8"))).openConnection();
+			connection = (HttpURLConnection) new URL(url.replace("$2", code.get().toString()).replace("$1", URLEncoder.encode(text, "UTF-8"))).openConnection();
 			connection.setRequestMethod("GET");
 			connection.setInstanceFollowRedirects(true);
 			connection.connect();
@@ -62,6 +59,11 @@ public class Translator implements TextProcessor {
 		}
 
 		return builder.toString();
+	}
+
+	@Override
+	public boolean canProcess(String text){
+		return text.indexOf(':') == 3;
 	}
 
 	public enum LanguageCode {
@@ -111,7 +113,7 @@ public class Translator implements TextProcessor {
 		SL,//スロベニア語
 		SW,//スワヒリ語
 		SU,//スンダ語
-		CB,//セブアノ語(CEB)
+		//CB,//セブアノ語(CEB)
 		SR,//セルビア語
 		SX,//ソト語
 		SO,//ソマリ語
@@ -131,7 +133,7 @@ public class Translator implements TextProcessor {
 		HA,//ハウサ語
 		PS,//パシュト語
 		EU,//バスク語
-		HW,//ハワイ語(HAW)
+		//HW,//ハワイ語(HAW)
 		HU,//ハンガリー語
 		PA,//パンジャブ語
 		HI,//ヒンディー語
@@ -156,7 +158,7 @@ public class Translator implements TextProcessor {
 		MS,//マレー語
 		MY,//ミャンマー語
 		MN,//モンゴル語
-		HN,//モン語(HMN)
+		//HN,//モン語(HMN)
 		YO,//ヨルバ語
 		LO,//ラオ語
 		LA,//ラテン語
@@ -170,14 +172,14 @@ public class Translator implements TextProcessor {
 		ZH,//中国語
 		JA;//日本語
 
-		public static LanguageCode toLanguageCode(String text){
+		public static Optional<LanguageCode> toLanguageCode(String text){
 			LanguageCode code = null;
 			try{
 				code = valueOf(text.toUpperCase());
 			}catch(Exception e){
 				e.printStackTrace();
 			}
-			return code;
+			return Optional.of(code);
 		}
 
 	}
