@@ -8,29 +8,32 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.io.CharStreams;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 
 public final class Japanizer implements TextProcessor {
 
+	private static final String CHARACTER_ENCODING = "UTF-8";
+
 	private static final Pattern[] ROMAN_LETTER_ARRAY;
 	private static final String[] HIRAGANA_ARRAY;
 
-	private static final String CHARACTER_ENCODING = "UTF-8";
-
 	public static void main(String[] args){
-		System.out.println(new Japanizer().process("korekaragakkouniikoutoomounodesukedo"));
+		Japanizer japanizer = new Japanizer();
+		//ある程度の長さからGoogleCGIAPIが空のJsonしか返さなくなる
+		System.out.println(japanizer.process("konbanha"));
+		System.out.println(japanizer.process("kombanha"));
 	}
 
-	//促音→子音+母音→xn→母音
 	static{
+		//促音→子音+母音→xn→母音
 		ImmutableMap<String, String> correspondenceTable = CorrespondenceTableBuilder.build(
 			"yi", "い",
 			"wu", "う",
@@ -313,10 +316,6 @@ public final class Japanizer implements TextProcessor {
 			"o", "お",
 			"n", "ん",
 
-
-
-
-
 			",", "、",
 			".", "。",
 			"-", "ー",
@@ -326,13 +325,29 @@ public final class Japanizer implements TextProcessor {
 			"]", "」"
 		);
 
-		ROMAN_LETTER_ARRAY = correspondenceTable.keySet()
-				.stream()
+		ArrayList<String> romanLetters = new ArrayList<>(correspondenceTable.keySet());
+		ArrayList<String> hiraganaList = new ArrayList<>(correspondenceTable.values());
+
+		for(Entry<String, String> pair : correspondenceTable.entrySet()){
+			String romanLetter = pair.getKey();
+			String hiragana = pair.getValue();
+			char firstLetter = romanLetter.charAt(0);
+			if("aiueon,.-!?[]".indexOf(firstLetter) <= -1){
+				romanLetters.add(0, firstLetter + romanLetter);
+				hiraganaList.add(0, "っ" + hiragana);
+			}
+
+			if("bp".indexOf(firstLetter) > -1){
+				romanLetters.add(0, "m" + romanLetter);
+				hiraganaList.add(0, "ん" + hiragana);
+			}
+		}
+
+		ROMAN_LETTER_ARRAY = romanLetters.stream()
 				.map(romanLetter -> Pattern.compile(romanLetter, Pattern.LITERAL))
 				.toArray(Pattern[]::new);
 
-		HIRAGANA_ARRAY = correspondenceTable.values()
-				.stream()
+		HIRAGANA_ARRAY = hiraganaList.stream()
 				.map(Matcher::quoteReplacement)
 				.toArray(String[]::new);
 	}
@@ -358,9 +373,7 @@ public final class Japanizer implements TextProcessor {
 
 			reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), CHARACTER_ENCODING));
 
-			String json = CharStreams.toString(reader);
-
-			new Gson().fromJson(json, JsonArray.class)
+			new Gson().fromJson(CharStreams.toString(reader), JsonArray.class)
 				.forEach(element -> builder.append(element.getAsJsonArray().get(1).getAsJsonArray().get(0).getAsString()));
 		}catch(MalformedURLException e){
 			e.printStackTrace();
@@ -394,21 +407,6 @@ public final class Japanizer implements TextProcessor {
 
 			for(int i = 0; i < pairs.length; i += 2)
 				builder.put(pairs[i], pairs[i + 1]);
-
-			for(Entry<String, String> pair : builder.build().entrySet()){
-				String romanLetter = pair.getKey();
-				String hiragana = pair.getValue();
-				char firstLetter = romanLetter.charAt(0);
-
-				if("aiueon,.-!?[]".indexOf(firstLetter) <= -1)
-					builder.put(firstLetter + romanLetter, "っ" + hiragana);
-
-				if("bp".indexOf(firstLetter) > -1)
-					builder.put("m" + romanLetter, "ん" + hiragana);
-			}
-
-			for(Entry<String, String> pair : builder.build().entrySet())
-				System.out.println(pair.getKey() + " : " + pair.getValue());
 
 			return builder.build();
 		}
