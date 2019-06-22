@@ -397,6 +397,11 @@ public final class Japanizer implements TextProcessor {
 		return builder.toString();
 	}
 
+	@Override
+	public boolean canProcess(String text){
+		return text.length() == text.getBytes().length || text.matches("[ \\uFF61-\\uFF9F]+");
+	}
+
 	private static final class CorrespondenceTableBuilder {
 
 		public static ImmutableMap<String, String> build(String... pairs){
