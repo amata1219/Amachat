@@ -50,12 +50,13 @@ public class User {
 		sendMessage(ChatColor.AQUA + message);
 	}
 
+	public void addition(String message){
+		sendMessage(ChatColor.GRAY + message);
+	}
+
 	public void warning(String message){
 		sendMessage(ChatColor.RED + message);
 	}
 
-	public void addition(String message){
-		sendMessage(ChatColor.GRAY + message);
-	}
 
 }

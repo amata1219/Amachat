@@ -6,6 +6,7 @@ import java.util.UUID;
 import amata1219.amachat.bungee.Amachat;
 import amata1219.amachat.bungee.User;
 import amata1219.amachat.bungee.UserManager;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public interface Chat {
@@ -155,6 +156,18 @@ public interface Chat {
 			.stream()
 			.filter(this::isMember)
 			.forEach(member -> member.sendMessage(sender, message));
+	}
+
+	default void information(String message){
+		broadcast(ChatColor.AQUA + message);
+	}
+
+	default void addition(String message){
+		broadcast(ChatColor.GRAY + message);
+	}
+
+	default void warning(String message){
+		broadcast(ChatColor.AQUA + message);
 	}
 
 	default void broadcast(String message){

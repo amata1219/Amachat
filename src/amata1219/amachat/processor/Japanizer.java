@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.io.CharStreams;
 import com.google.gson.Gson;
@@ -28,16 +29,12 @@ public final class Japanizer implements TextProcessor {
 		System.out.println(new Japanizer().process("korekaragakkouniikoutoomounodesukedo"));
 	}
 
+	//促音→子音+母音→xn→母音
 	static{
-		ImmutableSortedMap<String, String> correspondenceTable = CorrespondenceTableBuilder.build(
-			//"a", "あ",
-			//"i", "い",
+		ImmutableMap<String, String> correspondenceTable = CorrespondenceTableBuilder.build(
 			"yi", "い",
-			//"u", "う",
 			"wu", "う",
 			"whu", "う",
-			//"e", "え",
-			//"o", "お",
 			"wha", "うぁ",
 			"whi", "うぃ",
 			"wi", "うぃ",
@@ -303,12 +300,23 @@ public final class Japanizer implements TextProcessor {
 			"ryo", "りょ",
 			"wa", "わ",
 			"wo", "を",
-			"n", "ん",
-			"nn", "ん",
-			"n'", "ん",
-			"xn", "ん",
 			"lwa", "ゎ",
 			"xwa", "ゎ",
+
+			"nn", "ん",
+			"xn", "ん",
+
+			"a", "あ",
+			"i", "い",
+			"u", "う",
+			"e", "え",
+			"o", "お",
+			"n", "ん",
+
+
+
+
+
 			",", "、",
 			".", "。",
 			"-", "ー",
@@ -318,34 +326,10 @@ public final class Japanizer implements TextProcessor {
 			"]", "」"
 		);
 
-		/*Pattern[] patterns = correspondenceTable.keySet()
-				.stream()
-				.map(romanLetter -> Pattern.compile(romanLetter, Pattern.LITERAL))
-				.toArray(Pattern[]::new);
-
-		patterns = Arrays.copyOf(patterns, patterns.length + 4);
-		char[] vowels = "aiueo".toCharArray();
-		for(int i = 0; i < 5; i++)
-			patterns[patterns.length - 5 + i] = Pattern.compile(String.valueOf(vowels[i]), Pattern.LITERAL);*/
-
 		ROMAN_LETTER_ARRAY = correspondenceTable.keySet()
 				.stream()
 				.map(romanLetter -> Pattern.compile(romanLetter, Pattern.LITERAL))
 				.toArray(Pattern[]::new);
-
-		/*ROMAN_LETTER_ARRAY = patterns;
-
-		String[] strings = correspondenceTable.values()
-				.stream()
-				.map(Matcher::quoteReplacement)
-				.toArray(String[]::new);
-
-		strings = Arrays.copyOf(strings, strings.length + 4);
-		vowels = "あいうえお".toCharArray();
-		for(int i = 0; i < 5; i++)
-			strings[strings.length - 5 + i] = Matcher.quoteReplacement(String.valueOf(vowels[i]));
-
-		HIRAGANA_ARRAY = strings;*/
 
 		HIRAGANA_ARRAY = correspondenceTable.values()
 				.stream()
@@ -361,8 +345,7 @@ public final class Japanizer implements TextProcessor {
 		for(int i = 0; i < ROMAN_LETTER_ARRAY.length; i++)
 			text = ROMAN_LETTER_ARRAY[i].matcher(text).replaceAll(HIRAGANA_ARRAY[i]);
 
-		text = text.replace("a", "あ").replace("i", "い").replace("u", "う").replace("e", "え").replace("o", "お");
-
+		StringBuilder builder = new StringBuilder();
 		HttpURLConnection connection = null;
 		BufferedReader reader = null;
 		try{
@@ -377,12 +360,8 @@ public final class Japanizer implements TextProcessor {
 
 			String json = CharStreams.toString(reader);
 
-			StringBuilder builder = new StringBuilder();
-			new Gson()
-				.fromJson(json, JsonArray.class)
+			new Gson().fromJson(json, JsonArray.class)
 				.forEach(element -> builder.append(element.getAsJsonArray().get(1).getAsJsonArray().get(0).getAsString()));
-
-			return builder.toString();
 		}catch(MalformedURLException e){
 			e.printStackTrace();
 		}catch(ProtocolException e){
@@ -393,24 +372,25 @@ public final class Japanizer implements TextProcessor {
 			if(connection != null)
 				connection.disconnect();
 
-			if(reader != null)
+			if(reader != null){
 				try {
 					reader.close();
 				} catch (IOException e) {
 
 				}
+			}
 		}
 
-		return text;
+		return builder.toString();
 	}
 
 	private static final class CorrespondenceTableBuilder {
 
-		public static ImmutableSortedMap<String, String> build(String... pairs){
+		public static ImmutableMap<String, String> build(String... pairs){
 			if(pairs.length % 2 != 0)
 				throw new IllegalArgumentException("Arguments length must be even");
 
-			ImmutableSortedMap.Builder<String, String> builder = ImmutableSortedMap.reverseOrder();
+			ImmutableMap.Builder<String, String> builder = new ImmutableMap.Builder<>();
 
 			for(int i = 0; i < pairs.length; i += 2)
 				builder.put(pairs[i], pairs[i + 1]);

@@ -60,37 +60,77 @@ public class ChannelChat implements Chat {
 		if(!canJoin(user))
 			return;
 
-		members.bypass((set) -> set.add(user));
+		addMember(user);
 
-		broadcast();
+		user.information(name + "に参加しました。");
+		information(user.name + "さんが" + name + "に参加しました。");
 	}
 
 	@Override
 	public void leave(User user) {
+		if(!isMember(user))
+			return;
+
+		removeMember(user);
+
+		user.information(name + "から退出しました。");
+		information(user.name + "さんが" + name + "から退出しました。");
 	}
 
 	@Override
 	public void kick(User user) {
+		if(!isMember(user))
+			return;
+
+		removeMember(user);
+
+		user.warning(name + "からキックされました。");
 	}
 
 	@Override
 	public void mute(User user) {
 		muted.bypass((set) -> set.add(user));
+
+		if(!isMember(user))
+			return;
+
+		removeMember(user);
+
+		user.warning(name + "からミュートされました。");
 	}
 
 	@Override
 	public void unmute(User user) {
 		muted.bypass((set) -> set.remove(user));
+
+		user.information(name + "からミュートが解除されました。");
 	}
 
 	@Override
 	public void ban(User user) {
 		banned.bypass((set) -> set.add(user));
+
+		if(!isMember(user))
+			return;
+
+		removeMember(user);
+
+		user.warning(name + "からBANされました。");
 	}
 
 	@Override
 	public void unban(User user) {
 		banned.bypass((set) -> set.remove(user));
+
+		user.information(name + "からBANが解除されました。");
+	}
+
+	private void addMember(User user){
+		members.bypass((set) -> set.add(user));
+	}
+
+	private void removeMember(User member){
+		members.bypass((set) -> set.remove(member));
 	}
 
 }

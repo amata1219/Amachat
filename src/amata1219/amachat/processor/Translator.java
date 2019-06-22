@@ -9,7 +9,7 @@ import java.net.URLEncoder;
 
 import org.apache.commons.lang.Validate;
 
-import amata1219.amachat.bungee.LineReader;
+import com.google.common.io.CharStreams;
 
 public class Translator implements TextProcessor {
 
@@ -36,20 +36,29 @@ public class Translator implements TextProcessor {
 
 		StringBuilder builder = new StringBuilder();
 		HttpURLConnection connection = null;
-
+		BufferedReader reader = null;
 		try {
 			connection = (HttpURLConnection) new URL(url.replace("$2", code.toString()).replace("$1", URLEncoder.encode(text, "UTF-8"))).openConnection();
 			connection.setRequestMethod("GET");
 			connection.setInstanceFollowRedirects(true);
 			connection.connect();
 
-			for(String line : LineReader.readAll(new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"))))
-				builder.append(line);
+			reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
+
+			builder.append(CharStreams.toString(reader));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}finally{
 			if(connection != null)
 				connection.disconnect();
+
+			if(reader != null){
+				try {
+					reader.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 		return builder.toString();

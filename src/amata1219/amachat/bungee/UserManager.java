@@ -53,7 +53,7 @@ public class UserManager implements Listener {
 	public void onJoin(ServerConnectEvent event){
 		ProxiedPlayer player = event.getPlayer();
 		UUID uuid = player.getUniqueId();
-		User user = users.getOrDefault(uuid, users.put(uuid, player));
+		User user = users.getOrDefault(uuid, users.put(uuid, new User(player)));
 		onlineUsers.bypass((set) -> set.add(user));
 	}
 

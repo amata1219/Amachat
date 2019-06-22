@@ -70,21 +70,29 @@ public class GlobalChat implements Chat {
 	@Override
 	public void mute(User user) {
 		muted.bypass((set) -> set.add(user));
+
+		user.warning(getName() + "からミュートされました。");
 	}
 
 	@Override
 	public void unmute(User user) {
 		muted.bypass((set) -> set.remove(user));
+
+		user.information(getName() + "からミュートが解除されました。");
 	}
 
 	@Override
 	public void ban(User user) {
 		banned.bypass((set) -> set.add(user));
+
+		user.warning(getName() + "からBANされました。");
 	}
 
 	@Override
 	public void unban(User user) {
 		banned.bypass((set) -> set.remove(user));
+
+		user.information(getName() + "からBANが解除されました。");
 	}
 
 }
