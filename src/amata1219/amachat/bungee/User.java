@@ -1,6 +1,8 @@
 package amata1219.amachat.bungee;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import net.md_5.bungee.api.ChatColor;
@@ -12,22 +14,24 @@ public class User {
 	private final Amachat amachat = Amachat.getPlugin();
 
 	public final UUID uuid;
+	public final Set<User> hidden;
 
 	public User(UUID uuid){
 		this.uuid = uuid;
+		this.hidden = new HashSet<>();
 	}
 
 	public Optional<ProxiedPlayer> getPlayer(){
 		return Optional.of(amachat.getProxy().getPlayer(uuid));
 	}
 
-	public boolean isOnline(){
-		return false;
+	public void sendMessage(User sender, String message){
+		if(!hidden.contains(sender))
+			sendMessage(message);
 	}
 
 	public void sendMessage(String message){
-		if(isOnline())
-			amachat.getProxy().getPlayer(uuid).sendMessage(new TextComponent(message));
+		getPlayer().ifPresent((player) -> player.sendMessage(new TextComponent(message)));
 	}
 
 	public void information(String message){

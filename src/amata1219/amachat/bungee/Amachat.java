@@ -33,6 +33,7 @@ public class Amachat extends Plugin {
 	 */
 
 	private static Amachat plugin;
+	private static UserManager userManager;
 
 	@Override
 	public void onEnable(){
@@ -46,6 +47,10 @@ public class Amachat extends Plugin {
 
 	public static Amachat getPlugin(){
 		return plugin;
+	}
+
+	public static UserManager getUserManager(){
+		return userManager;
 	}
 
 }
