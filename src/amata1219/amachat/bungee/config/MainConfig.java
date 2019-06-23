@@ -4,6 +4,7 @@ import java.util.Map;
 
 import amata1219.amachat.collection.LockableHashMap;
 import amata1219.amachat.collection.LockableHashMap.LockableHashMapLocker;
+import amata1219.amachat.processor.Colorist;
 
 public class MainConfig extends Config {
 
@@ -14,8 +15,8 @@ public class MainConfig extends Config {
 	 *
 	 * HolderPlacerEnable: true
 	 * PlaceHolders:
-	 *   Holder: Replacement
-	 *   Holder: Replacement
+	 * - "::"
+	 * - ""
 	 *
 	 * JapanizerEnable: true
 	 * TranslatorEnable: true
@@ -36,10 +37,16 @@ public class MainConfig extends Config {
 	public MainConfig reload(){
 		super.reload();
 
+		Colorist colorist = Colorist.INSTANCE;
+
 		config.getSection("Servers").getKeys()
-			.forEach(serverName -> aliases.bypass((map) -> map.put(serverName, config.getString("Servers." + serverName))));
+			.forEach(serverName -> aliases.bypass((map) -> map.put(serverName, colorist.process(config.getString("Servers." + serverName)))));
 
 		holderPlacerEnable = config.getBoolean("HolderPlacerEnable");
+
+		config.getStringList("PlaceHolders").stream()
+			.map(text -> colorist.process(text).split("::"))
+			.forEach(splittedText -> placeHolders.bypass((map) -> map.put(splittedText[0], splittedText[1])));
 
 		config.getSection("PlaceHolders").getKeys()
 			.forEach(holder -> placeHolders.bypass((map) -> map.put(holder, config.getString("PlaceHolders." + holder))));

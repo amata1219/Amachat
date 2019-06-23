@@ -8,6 +8,7 @@ import amata1219.amachat.bungee.User;
 import amata1219.amachat.bungee.UserManager;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.config.Configuration;
 
 public interface Chat {
 
@@ -173,6 +174,8 @@ public interface Chat {
 	default void broadcast(String message){
 		getMembers().forEach(member -> member.sendMessage(message));
 	}
+
+	void save(Configuration config);
 
 	default UserManager getUserManager(){
 		return Amachat.getUserManager();

@@ -20,6 +20,8 @@ import com.google.gson.JsonArray;
 
 public final class Japanizer implements TextProcessor {
 
+	public static final Japanizer INSTANCE = new Japanizer();
+
 	private static final String CHARACTER_ENCODING = "UTF-8";
 
 	private static final Pattern[] ROMAN_LETTER_ARRAY;

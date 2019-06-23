@@ -7,6 +7,7 @@ import amata1219.amachat.bungee.NotImplementedException;
 import amata1219.amachat.bungee.User;
 import amata1219.amachat.collection.LockableHashSet;
 import amata1219.amachat.collection.LockableHashSet.LockableHashSetLocker;
+import net.md_5.bungee.config.Configuration;
 
 public class GlobalChat implements Chat {
 
@@ -93,6 +94,13 @@ public class GlobalChat implements Chat {
 		banned.bypass((set) -> set.remove(user));
 
 		user.information(getName() + "からBANが解除されました。");
+	}
+
+	@Override
+	public void save(Configuration config) {
+		config.set(getName() + "Alias", alias);
+		config.set(getName() + "Muted", getMuted().toString());
+		config.set(getName() + "Banned", getBanned().toString());
 	}
 
 }

@@ -73,6 +73,16 @@ public class LockableHashSet<E> extends HashSet<E> implements Lockable {
 			super.clear();
 	}
 
+	@Override
+	public String toString(){
+		StringBuilder builder = new StringBuilder();
+
+		for(E element : this)
+			builder.append(element.toString()).append(",");
+
+		return builder.toString().substring(0, builder.length() - 1);
+	}
+
 	public static class LockableHashSetLocker<E> {
 
 		public final LockableHashSet<E> set;

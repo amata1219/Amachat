@@ -9,16 +9,18 @@ import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.Validate;
 import amata1219.amachat.bungee.User;
 import amata1219.amachat.collection.LockableHashSet;
 import amata1219.amachat.collection.LockableHashSet.LockableHashSetLocker;
+import net.md_5.bungee.config.Configuration;
 
 public class ChannelChat implements Chat {
 
 	private final String name;
-	private String alias;
+	private String alias, prefix;
 	private final LockableHashSetLocker<User> members, muted, banned;
 
-	public ChannelChat(String name, String alias, Collection<UUID> members, Collection<UUID> muted, Collection<UUID> banned){
+	public ChannelChat(String name, String alias, String prefix,Collection<UUID> members, Collection<UUID> muted, Collection<UUID> banned){
 		this.name = name;
 		this.alias = alias;
+		this.prefix = prefix;
 		this.members = LockableHashSet.of(getUserManager().wrap(members));
 		this.muted =  LockableHashSet.of(getUserManager().wrap(muted));
 		this.banned =  LockableHashSet.of(getUserManager().wrap(banned));
@@ -38,6 +40,20 @@ public class ChannelChat implements Chat {
 	public void setAlias(String alias) {
 		Validate.notNull(alias, "Alias can not be null");
 		this.alias = alias;
+	}
+
+	public String getPrefix(){
+		return prefix;
+	}
+
+	public boolean hasPrefix(){
+		return prefix != null;
+	}
+
+	public void setPrefix(String prefix){
+		Validate.notNull(prefix, "Prefix can not be null");
+
+		//unregister -> prefix = prefix -> register
 	}
 
 	@Override
@@ -123,6 +139,14 @@ public class ChannelChat implements Chat {
 		banned.bypass((set) -> set.remove(user));
 
 		user.information(name + "からBANが解除されました。");
+	}
+
+	public void save(Configuration config){
+		config.set(name + "Alias", alias);
+		config.set(name + "Prefix", prefix);
+		config.set(name + "Members", members.toString());
+		config.set(name + "Muted", muted.toString());
+		config.set(name + "Banned", banned.toString());
 	}
 
 	private void addMember(User user){

@@ -30,11 +30,11 @@ public class Translator implements TextProcessor {
 		if(text.isEmpty() || !canProcess(text))
 			return text;
 
-		String[] splitedText = text.split(":", 1);
-		if(splitedText.length != 2)
+		String[] splittedText = text.split(":", 1);
+		if(splittedText.length != 2)
 			return text;
 
-		Optional<LanguageCode> code = LanguageCode.toLanguageCode(splitedText[0]);
+		Optional<LanguageCode> code = LanguageCode.toLanguageCode(splittedText[0]);
 		if(!code.isPresent() || !allowedLanguage.contains(code))
 			return text;
 

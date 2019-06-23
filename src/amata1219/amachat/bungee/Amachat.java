@@ -1,6 +1,8 @@
 package amata1219.amachat.bungee;
 
 import amata1219.amachat.bungee.config.MainConfig;
+import amata1219.amachat.processor.Japanizer;
+import amata1219.amachat.processor.Translator;
 import net.md_5.bungee.api.connection.Connection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
@@ -34,6 +36,8 @@ public class Amachat extends Plugin implements Listener {
 
 	private MainConfig mainConfig;
 
+	private Translator translator;
+
 	@Override
 	public void onEnable(){
 		plugin = this;
@@ -63,9 +67,18 @@ public class Amachat extends Plugin implements Listener {
 		if(!(sender instanceof ProxiedPlayer))
 			return;
 
-		ProxiedPlayer player = (ProxiedPlayer) sender;
+		User user = userManager.wrap((ProxiedPlayer) sender);
+		String text = event.getMessage();
 
+		//prefix判定
 
+		Japanizer japanizer = Japanizer.INSTANCE;
+		if(mainConfig.isEnableJapanizer() && user.useJapanize && japanizer.canProcess(text))
+			text = japanizer.process(text);
+		else if(translator != null && translator.canProcess(text))
+			text = translator.process(text);
+
+		event.setCancelled(true);
 	}
 
 }
