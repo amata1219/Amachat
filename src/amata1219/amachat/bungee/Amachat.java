@@ -1,17 +1,18 @@
 package amata1219.amachat.bungee;
 
+import amata1219.amachat.bungee.config.MainConfig;
+import net.md_5.bungee.api.connection.Connection;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.event.ChatEvent;
+import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.event.EventHandler;
 
-public class Amachat extends Plugin {
+public class Amachat extends Plugin implements Listener {
 
 	/*
-	 * @…Amachat(未完成)から機能そのままコピペ
+	 * Tasks
 	 *
-	 *
-	 * メイン機能
-	 *
-	 * ・ローマ字変換@
-	 * ・翻訳@
 	 * ・チャンネルチャット
 	 * ・個人チャット
 	 * ・メール(簡易)
@@ -26,18 +27,18 @@ public class Amachat extends Plugin {
 	 *
 	 * onChat(Bungee) → sendMessage(Bungee) + sendPluginMessage(Bungee):Dynmap用
 	 *
-	 * ログイン・ログアウトメッセージ表示→LoginInterphoneでやろう
-	 *
-	 * 死亡ログ・進捗メッセージ共有→だるい
-	 *
 	 */
 
 	private static Amachat plugin;
 	private static UserManager userManager;
 
+	private MainConfig mainConfig;
+
 	@Override
 	public void onEnable(){
 		plugin = this;
+
+		mainConfig = new MainConfig().reload();
 	}
 
 	@Override
@@ -51,6 +52,20 @@ public class Amachat extends Plugin {
 
 	public static UserManager getUserManager(){
 		return userManager;
+	}
+
+	@EventHandler
+	public void onChat(ChatEvent event){
+		if(event.isCommand())
+			return;
+
+		Connection sender = event.getSender();
+		if(!(sender instanceof ProxiedPlayer))
+			return;
+
+		ProxiedPlayer player = (ProxiedPlayer) sender;
+
+
 	}
 
 }

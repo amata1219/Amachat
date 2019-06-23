@@ -159,8 +159,8 @@ public class LockableArrayList<E> extends ArrayList<E> implements Lockable {
 
 		public final LockableArrayList<E> list;
 
-		public LockableArrayListLocker(LockableArrayList<E> set){
-			this.list = set;
+		public LockableArrayListLocker(LockableArrayList<E> list){
+			this.list = list;
 		}
 
 		public void bypass(Consumer<LockableArrayList<E>> consumer){

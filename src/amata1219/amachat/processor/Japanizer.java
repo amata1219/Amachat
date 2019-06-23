@@ -27,13 +27,11 @@ public final class Japanizer implements TextProcessor {
 
 	public static void main(String[] args){
 		Japanizer japanizer = new Japanizer();
-		//ある程度の長さからGoogleCGIAPIが空のJsonしか返さなくなる
 		System.out.println(japanizer.process("konbanha"));
 		System.out.println(japanizer.process("kombanha"));
 	}
 
 	static{
-		//促音→子音+母音→xn→母音
 		ImmutableMap<String, String> correspondenceTable = CorrespondenceTableBuilder.build(
 			"yi", "い",
 			"wu", "う",

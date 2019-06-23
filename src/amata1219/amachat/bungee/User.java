@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import amata1219.amachat.bungee.chat.Chat;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -17,8 +18,9 @@ public class User {
 
 	public final UUID uuid;
 	public final String name;
-	public final Set<User> hidden;
 	public boolean useJapanize;
+	public final Set<User> hidden;
+	public Chat destination;
 
 	public User(ProxiedPlayer player){
 		uuid = player.getUniqueId();
@@ -26,11 +28,11 @@ public class User {
 		hidden = new HashSet<>();
 	}
 
-	public User(UUID uuid, String name, Collection<UUID> hidden, boolean useJapanize){
+	public User(UUID uuid, String name, boolean useJapanize, Collection<UUID> hidden){
 		this.uuid = uuid;
 		this.name = name;
-		this.hidden = new HashSet<>(userManager.wrap(hidden));
 		this.useJapanize = useJapanize;
+		this.hidden = new HashSet<>(userManager.wrap(hidden));
 	}
 
 	public Optional<ProxiedPlayer> getPlayer(){
@@ -58,5 +60,18 @@ public class User {
 		sendMessage(ChatColor.RED + message);
 	}
 
+	public void save(){
+		/*
+		 * UUID:
+		 *   Name:
+		 *   UseJapanize:
+		 *   Hidden: UUID1,UUID2,UUID3…
+		 */
+	}
+
+	@Override
+	public int hashCode(){
+		return uuid.hashCode();
+	}
 
 }

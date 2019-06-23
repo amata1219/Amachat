@@ -7,6 +7,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 
@@ -15,11 +16,13 @@ import com.google.common.io.CharStreams;
 public class Translator implements TextProcessor {
 
 	private final String url;
+	public final Set<LanguageCode> allowedLanguage;
 
-	public Translator(String url){
+	public Translator(String url, Set<LanguageCode> allowedLanguage){
 		Validate.notNull(url, "URL can not be null");
 
 		this.url = url;
+		this.allowedLanguage = allowedLanguage;
 	}
 
 	@Override
@@ -27,8 +30,12 @@ public class Translator implements TextProcessor {
 		if(text.isEmpty() || !canProcess(text))
 			return text;
 
-		Optional<LanguageCode> code = LanguageCode.toLanguageCode(text.split(":", 1)[0]);
-		if(!code.isPresent())
+		String[] splitedText = text.split(":", 1);
+		if(splitedText.length != 2)
+			return text;
+
+		Optional<LanguageCode> code = LanguageCode.toLanguageCode(splitedText[0]);
+		if(!code.isPresent() || !allowedLanguage.contains(code))
 			return text;
 
 		StringBuilder builder = new StringBuilder();

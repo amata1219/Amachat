@@ -148,20 +148,20 @@ public class LockableHashMap<K, V> extends HashMap<K, V> implements Lockable {
 
 	public static class LockableHashMapLocker<K, V> {
 
-		public final LockableHashMap<K, V> set;
+		public final LockableHashMap<K, V> map;
 
-		public LockableHashMapLocker(LockableHashMap<K, V> set){
-			this.set = set;
+		public LockableHashMapLocker(LockableHashMap<K, V> map){
+			this.map = map;
 		}
 
 		public void bypass(Consumer<LockableHashMap<K, V>> consumer){
-			final boolean lock = set.isLocked();
-			consumer.accept(set);
-			set.setLock(set.key, lock);
+			final boolean lock = map.isLocked();
+			consumer.accept(map);
+			map.setLock(map.key, lock);
 		}
 
 		public UUID getKey(){
-			return set.key;
+			return map.key;
 		}
 
 	}
